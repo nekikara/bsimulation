@@ -8,7 +8,6 @@ ThisBuild / organizationName := "example"
 lazy val root = (project in file("."))
   .settings(
     name := "bsimulation",
-    libraryDependencies += scalaTest % Test
-  )
-
-// See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
+    libraryDependencies += scalaTest % Test,
+    libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "2.1.1",
+)
