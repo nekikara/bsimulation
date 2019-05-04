@@ -1,21 +1,49 @@
 package example
 import scala.swing._
+import scala.swing.Swing._
+import scala.swing.{MainFrame, Panel}
+import scala.swing.event._
+import java.awt.{Color, Graphics2D, Point, geom}
+
 
 object FirstSwingApp extends SimpleSwingApplication {
+  lazy val ui = new Panel {
+    background = Color.white
+    preferredSize = (200,200)
 
-  def top = new MainFrame {
-    title ="Second Swing App"
-    val button = new Button {
-      text = "Click me"
+    focusable = true
+    listenTo(mouse.clicks, mouse.moves, keys)
+
+    reactions += {
+      case e: MousePressed  =>
+        moveTo(e.point)
+        requestFocusInWindow()
+      case e: MouseDragged  => lineTo(e.point)
+      case e: MouseReleased => lineTo(e.point)
+      case KeyTyped(_,'c',_,_) =>
+        path = new geom.GeneralPath
+        repaint()
+      case _: FocusLost => repaint()
     }
-    val label = new Label {
-      text = "No button clicks registered"
-    }
-    contents = new BoxPanel(Orientation.Vertical) {
-      contents += button
-      contents += label
-      border = Swing.EmptyBorder(30, 30, 10, 30)
+
+    /* records the dragging */
+    var path = new geom.GeneralPath
+
+    def lineTo(p: Point) { path.lineTo(p.x, p.y); repaint() }
+    def moveTo(p: Point) { path.moveTo(p.x, p.y); repaint() }
+
+    override def paintComponent(g: Graphics2D): Unit = {
+      super.paintComponent(g)
+      g.setColor(new Color(100,100,100))
+      g.drawString("Press left mouse button and drag to paint." +
+        (if(hasFocus) " Press 'c' to clear." else ""), 10, size.height-10)
+      g.setColor(Color.black)
+      g.draw(path)
     }
   }
 
+  def top: MainFrame = new MainFrame {
+    title = "Simple Line Painting Demo"
+    contents = ui
+  }
 }
